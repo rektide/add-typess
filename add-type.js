@@ -4,30 +4,6 @@
 */
 
 
-var global= this
-
-/**
-  @typedef typeRepository
-*/
-function typeRepository(){
-	if(this === global){
-		return new typeRepository
-	}
-}
-
-/**
-  @type {typeRepository}
-  @global
-*/
-exports.defaultTypeRepository= typeRepository()
-
-
-/**
-  @type {jsonld:id}
-  @global
-*/
-exports.idField= '@id'
-
 /**
   Add a type into the repository
   @param {prototype} proto - a prototype for a type
@@ -35,7 +11,7 @@ exports.idField= '@id'
   @param {typeRepository} [typeRepository=exports.defaultTypeRepository] - a collection of known types to add into
 */
 function learnType(proto, typeRepository){
-	var id= fn[exports.idField]
+	var id= fn[require('@id').idField]
 	if(typeof id !== 'string'){
 		throw new TypeError('no proto-type.id to learn')
 	}
@@ -69,9 +45,12 @@ function _learn(blank, id, thing, typeRepository){
 		throw new Error('Need an id')
 	}
 
-	var repo= typeRepository|| exports.defaultTypeRepository,
-	  theseTypes= repo[id]
+	var repo= typeRepository|| require('type-store').defaultTypeRepository
+	if(typeof repo === 'function'){
+		repo= repo()
+	}
 
+	var theseTypes= repo[id]
 	if(theseTypes && theseTypes instanceof Array){
 		theseTypes.push(thing)
 	}else if(theseTypes){
