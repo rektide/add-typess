@@ -6,14 +6,17 @@
 
 /**
   Add a type into the repository
-  @param {prototype} proto - a prototype for a type
+  @param {prototype} proto - a prototype for a type, which also accepts property definitions
   @param {Function} proto.constructor - optional .constructor field
   @param {typeRepository} [typeRepository=exports.defaultTypeRepository] - a collection of known types to add into
 */
 function learnType(proto, typeRepository){
-	var id= fn[require('@id').idField]
+	var id= fn['@id']
 	if(typeof id !== 'string'){
 		throw new TypeError('no proto-type.id to learn')
+	}
+	if(fn['@type'] === undefined){
+		fn['@type']= 'https://archive.voodoowarez.com/type'
 	}
 	_learn(null, id, fn, typeRepository)
 }
@@ -45,17 +48,17 @@ function _learn(blank, id, thing, typeRepository){
 		throw new Error('Need an id')
 	}
 
-	var repo= typeRepository|| require('type-store').defaultTypeRepository
-	if(typeof repo === 'function'){
+	typeRepository= typeRepository|| require('type-repository').defaultTypeRepository
+	if(typeof typeRepository === 'function'){
 		repo= repo()
 	}
 
-	var theseTypes= repo[id]
+	var theseTypes= typeRepository[id]
 	if(theseTypes && theseTypes instanceof Array){
 		theseTypes.push(thing)
 	}else if(theseTypes){
-		repo[id]= [theseTypes, thing]
+		typeRepository[id]= [theseTypes, thing]
 	}else{
-		repo[id]
+		typeRepository[id]
 	}
 }
